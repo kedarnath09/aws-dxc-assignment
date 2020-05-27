@@ -80,10 +80,10 @@
 						"print('{} updated details in s3'.format(ssm_userName))\n\t\t",						
 						"if event['RequestType'] == 'Delete':\n\t\t\t",
 						"cfnresponse.send(event, context, cfnresponse.SUCCESS, {})\n\t\t",
-						"if event['RequestType'] == 'Update':\n\t\t\t",
+						"elif event['RequestType'] == 'Update':\n\t\t\t",
 						"cfnresponse.send(event, context, cfnresponse.SUCCESS, {})\n\t\t",
-						"if event['RequestType'] == 'Create':\n\t\t\t",
-						"cfnresponse.send(event, context, cfnresponse.SUCCESS, 'UserName Updated in S3')\n\t\t",
+						"elif event['RequestType'] == 'Create':\n\t\t\t",
+						"cfnresponse.send(event, context, cfnresponse.SUCCESS, user, 'CustomResourcePhysicalID')\n\t\t",
 						"return {\n\t\t",
 						"'statusCode': 200,\n\t\t",
 						"'body': 'example-lambda execution completed, {} details updated in S3'.format(ssm_userName)\n\t\t",
@@ -103,7 +103,7 @@
 
               "Timeout": 300,
 
-              "Runtime": "python3.7",
+              "Runtime": "python3.6",
 			
 			  "TracingConfig": {
 					"Mode": "Active"
@@ -114,7 +114,7 @@
 		"MyCustomResource" : {
 		"Type" : "Custom::TestLambdaCrossStackRef",
 		"Properties" : {
-			"ServiceToken": { "Fn::Join": [ "", [ "arn:aws:lambda:", { "Ref": "AWS::Region" }, ":", { "Ref": "AWS::AccountId" }, ":function:", {"Ref" : "ExampleLambda"} ] ] }
+			"ServiceToken": { "Fn::GetAtt" : ["ExampleLambda", "Arn"]  }
 			}
 		}
 },
@@ -123,8 +123,8 @@
         "ExampleLambdaOutput": {
             "Value": { "Ref" : "ExampleLambda" }
         },
-		"MyCustomResource":{
-			"Value": {"Ref":"MyCustomResource"}
+		"MyCustomResourceOutput":{
+			"Value" : { "Fn::GetAtt" : ["MyCustomResource", "UserName"] }
 			}
 		
         }
